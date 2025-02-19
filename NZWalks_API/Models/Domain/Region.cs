@@ -1,4 +1,6 @@
-﻿namespace NZWalks_API.Models.Domain
+﻿using Microsoft.EntityFrameworkCore;
+
+namespace NZWalks_API.Models.Domain
 {
     public class Region
     {
@@ -9,5 +11,7 @@
         public string Name { get; set; }
 
         public string? RegionImageUrl { get; set; }
+
+        
     }
 }
