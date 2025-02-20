@@ -1,6 +1,8 @@
 ﻿using AutoMapper;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using NZWalks_API.CustomActionFilters;
 using NZWalks_API.Data;
 using NZWalks_API.Models.Domain;
 using NZWalks_API.Models.DTO;
@@ -23,32 +25,38 @@ namespace NZWalks_API.Controllers
             this.walkRepository = walkRepository;
         }
 
+
+        //Create Function---------------------------------------------
+
         [HttpPost]
+        [ValidateModelAttributes]
 
         public async Task<IActionResult> Create([FromBody] AddWalksRequestDto addWalksRequestDto)
         {
-            //DTO map to Domain Model
+                //DTO map to Domain Model
 
-            //var walkDomainModel = new Walk()
-            //{
-            //    Name = addWalksRequestDtocs.Name,
-            //    Description = addWalksRequestDtocs.Description,
-            //    LengthInKm = addWalksRequestDtocs.LengthInKm,
-            //    WalkImageUrl = addWalksRequestDtocs.WalkImageUrl,
-            //    DifficultyId = addWalksRequestDtocs.DifficultyId,
-            //    RegionId = addWalksRequestDtocs.RegionId,
-            //};
+                //var walkDomainModel = new Walk()
+                //{
+                //    Name = addWalksRequestDtocs.Name,
+                //    Description = addWalksRequestDtocs.Description,
+                //    LengthInKm = addWalksRequestDtocs.LengthInKm,
+                //    WalkImageUrl = addWalksRequestDtocs.WalkImageUrl,
+                //    DifficultyId = addWalksRequestDtocs.DifficultyId,
+                //    RegionId = addWalksRequestDtocs.RegionId,
+                //};
 
-            var walkDomainModel = mapper.Map<Walk>(addWalksRequestDto);
+                var walkDomainModel = mapper.Map<Walk>(addWalksRequestDto);
 
-            walkDomainModel = await walkRepository.CreateAsync(walkDomainModel);
+                walkDomainModel = await walkRepository.CreateAsync(walkDomainModel);
 
-            //Domain model map to DTO
+                //Domain model map to DTO
 
-            var walkDto = mapper.Map<WalkDto>(walkDomainModel);
+                var walkDto = mapper.Map<WalkDto>(walkDomainModel);
 
-            return CreatedAtAction(nameof(GetById), new { id = walkDto.Id }, walkDto);
-        }
+                return CreatedAtAction(nameof(GetById), new { id = walkDto.Id }, walkDto);
+            }
+
+        //Read Function-------------------------------------------------
 
         [HttpGet]
         public async Task<IActionResult> Getall()
@@ -85,28 +93,37 @@ namespace NZWalks_API.Controllers
             return NotFound();
         }
 
+
+        //Update Function-----------------------------------------------
+
         [HttpPut]
         [Route("{id:Guid}")]
 
         public async Task<IActionResult> ChangeByID([FromRoute] Guid id, [FromBody] ChangeWalkDto changeWalkDto)
         {
-            //DTO map to DomainWalkModel
-
-            var domainWalkModel = mapper.Map<Walk>(changeWalkDto);
-
-            domainWalkModel = await walkRepository.UpdateById(id, domainWalkModel);
-            if (domainWalkModel == null)
+            if (ModelState.IsValid)
             {
-                return NotFound();
+                //DTO map to DomainWalkModel
+
+                var domainWalkModel = mapper.Map<Walk>(changeWalkDto);
+
+                domainWalkModel = await walkRepository.UpdateById(id, domainWalkModel);
+                if (domainWalkModel == null)
+                {
+                    return NotFound();
+                }
+
+                //Domain Model to DTO
+
+                var walkDto = mapper.Map<WalkDto>(domainWalkModel);
+                return Ok(walkDto);
             }
 
-            //Domain Model to DTO
-
-            var walkDto = mapper.Map<WalkDto>(domainWalkModel);
-            return Ok(walkDto);
-
+            return BadRequest(ModelState);
         }
 
+
+        //Delete Function------------------------------------------------
         [HttpDelete]
         [Route("{id:Guid}")]
 
