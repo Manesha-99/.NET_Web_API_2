@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using Microsoft.AspNetCore.Mvc.Diagnostics;
+using Microsoft.EntityFrameworkCore;
 using NZWalks_API.Data;
 using NZWalks_API.Models.Domain;
 
@@ -53,9 +54,42 @@ namespace NZWalks_API.Repositories
             return existregion;
         }
 
-        public async Task<List<Region>> GetAllAsync()
+        public async Task<List<Region>> GetAllAsync(string? filterOn = null, string? filterQuery = null,
+            string? sortBy = null, bool isAscending = true, int pageNumber=1, int pageSize=10)
         {
-           return  await dbContext.Regions.ToListAsync();
+
+           //Filtering
+
+            var regions = dbContext.Regions.AsQueryable();
+
+            if((string.IsNullOrWhiteSpace(filterOn) ==false) && (string.IsNullOrWhiteSpace(filterQuery) ==false))
+            {
+                if(filterOn.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    regions = regions.Where(x=>x.Name.Contains(filterQuery));
+                }
+            }
+
+            //Sorting
+
+            if((string.IsNullOrWhiteSpace(sortBy) == false))
+            {
+                if(sortBy.Equals("Name", StringComparison.OrdinalIgnoreCase))
+                {
+                    regions = isAscending ? regions.OrderBy(x=> x.Name) : regions.OrderByDescending(x=> x.Name);
+                }
+                else if(sortBy.Equals("Code", StringComparison.OrdinalIgnoreCase)){
+
+                    regions = isAscending ? regions.OrderBy(x=> x.Code) : regions.OrderByDescending(x=> x.Code);
+                }
+            }
+
+
+            //Pagination
+
+            var skipresults = (pageNumber - 1) * pageSize;
+
+           return  await regions.Skip(skipresults).Take(pageSize).ToListAsync();
         }
 
         public async Task<Region?> GetByIDAsync(Guid id)

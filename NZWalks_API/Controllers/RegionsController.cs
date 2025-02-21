@@ -31,9 +31,10 @@ namespace NZWalks_API.Controllers
 
         [HttpGet]
 
-        public async Task<IActionResult> GetAll()
+        public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQeury,
+            [FromQuery] string? sortBy, [FromQuery] bool isAscendong, [FromQuery] int pageNumber = 1 , [FromQuery] int pageSize=10)
         {
-            var regionsDomain = await regionRepository.GetAllAsync();
+            var regionsDomain = await regionRepository.GetAllAsync(filterOn, filterQeury, sortBy, isAscendong, pageNumber, pageSize);
 
             if (regionsDomain != null) {
 

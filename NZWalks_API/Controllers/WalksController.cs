@@ -58,10 +58,12 @@ namespace NZWalks_API.Controllers
 
         //Read Function-------------------------------------------------
 
+        //GET: api/walks?filterOn=Name&filterQuery=Track&pageNumber=1&pageSize=100
         [HttpGet]
-        public async Task<IActionResult> Getall()
+        public async Task<IActionResult> Getall([FromQuery]string? filterOn, [FromQuery] string? filterQuery,
+            [FromQuery] string? sortBy, [FromQuery] bool isAscending, [FromQuery] int pageNumber, [FromQuery] int pageSize)
         {
-            var walkDomainModel = await walkRepository.GetAllAsync();
+            var walkDomainModel = await walkRepository.GetAllAsync(filterOn, filterQuery, sortBy, isAscending, pageNumber, pageSize);
 
             if (walkDomainModel != null)
             {
