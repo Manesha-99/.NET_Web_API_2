@@ -1,4 +1,5 @@
 ﻿using AutoMapper;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -12,6 +13,7 @@ namespace NZWalks_API.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+   
 
     public class RegionsController : ControllerBase
     {
@@ -27,9 +29,10 @@ namespace NZWalks_API.Controllers
         }
 
 
-        //Reade Function--------------------------------------------
+        //Read Function--------------------------------------------
 
         [HttpGet]
+        [Authorize(Roles = "Reader, Writer")]
 
         public async Task<IActionResult> GetAll([FromQuery] string? filterOn, [FromQuery] string? filterQeury,
             [FromQuery] string? sortBy, [FromQuery] bool isAscendong, [FromQuery] int pageNumber = 1 , [FromQuery] int pageSize=10)
@@ -62,6 +65,7 @@ namespace NZWalks_API.Controllers
 
         [HttpGet]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Reader, Writer")]
 
         public async Task<IActionResult> GetByID([FromRoute] Guid id)
         {
@@ -93,6 +97,7 @@ namespace NZWalks_API.Controllers
 
         [HttpPost]
         [ValidateModelAttributes]
+        [Authorize(Roles = "Writer")]
 
         public async Task<IActionResult> AddItem([FromBody] AddRegionRequestDto addDetailsDto)
         {
@@ -132,6 +137,7 @@ namespace NZWalks_API.Controllers
 
         [HttpPut]
         [Route("{id:Guid}")]
+        [Authorize(Roles = "Writer")]
 
         public async  Task<IActionResult> ChangeByID([FromRoute] Guid id, [FromBody] ChangeRequestDTO changeRequestDto)
         {
@@ -179,6 +185,7 @@ namespace NZWalks_API.Controllers
 
         [HttpDelete]
         [Route("{id:guid}")]
+        [Authorize(Roles = "Writer")]
 
         public async Task<IActionResult> Delete([FromRoute] Guid id)
         {
